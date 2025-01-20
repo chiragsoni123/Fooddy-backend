@@ -79,10 +79,21 @@ public class RestaurantController {
             @RequestHeader("Authorization") String jwt,
             @PathVariable Long id
     ) throws Exception {
-        User user= userService.findUserByJwtToken(jwt);
 
-        RestaurantDto restaurant=restaurantService.addToFavorites(id,user);
+        if(id==null){
+            System.out.println("id not present ");
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
 
-        return new ResponseEntity<>(restaurant, HttpStatus.OK);
+        try{
+            User user= userService.findUserByJwtToken(jwt);
+
+            RestaurantDto restaurant=restaurantService.addToFavorites(id,user);
+
+            return new ResponseEntity<>(restaurant, HttpStatus.OK);
+        } catch (Exception e){
+            System.out.println("Error in addToFavorites: "+ e.getMessage());
+            throw e;
+        }
     }
 }

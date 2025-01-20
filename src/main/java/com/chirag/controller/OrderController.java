@@ -5,7 +5,9 @@ import com.chirag.model.Order;
 import com.chirag.model.User;
 import com.chirag.request.AddCartItemRequest;
 import com.chirag.request.OrderRequest;
+import com.chirag.response.PaymentResponse;
 import com.chirag.service.OrderService;
+import com.chirag.service.PaymentService;
 import com.chirag.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -38,14 +40,26 @@ public class OrderController {
     }
 
     @Autowired
+    private PaymentService paymentService;
+
+    public PaymentService getPaymentService() {
+        return paymentService;
+    }
+
+    public void setPaymentService(PaymentService paymentService) {
+        this.paymentService = paymentService;
+    }
+
+    @Autowired
     private UserService userService;
 
-    @PostMapping("/orders")
-    public ResponseEntity<Order> createOrder(@RequestBody OrderRequest req,
-                                                @RequestHeader("Authorization") String jwt) throws Exception {
+    @PostMapping("/order")
+    public ResponseEntity<PaymentResponse> createOrder(@RequestBody OrderRequest req,
+                                                       @RequestHeader("Authorization") String jwt) throws Exception {
         User user = userService.findUserByJwtToken(jwt);
         Order order = orderService.createOrder(req,user);
-        return new ResponseEntity<>(order, HttpStatus.OK);
+        PaymentResponse res = paymentService.createPaymentLink(order);
+        return new ResponseEntity<>(res, HttpStatus.OK);
     }
 
     @GetMapping("/order/user")
